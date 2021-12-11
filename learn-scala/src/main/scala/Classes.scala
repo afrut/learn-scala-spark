@@ -17,6 +17,8 @@ object Main {
 
     // Determine the type of variable
     println(s"    The type of person1 is ${person1.getClass}")
+    println(s"    The type of person1 is ${person1.getClass.getName}")
+    println(s"    The type of person1 is ${person1.getClass.getSimpleName}")
 
     // Create an instance of Person with named parameters.
     val person2 = new Person(lastName = "Smith", firstName = "John")
