@@ -9,4 +9,7 @@ object Main extends App {
   enumerations.Main.run()
   shapes.Main.run()
   collections.Main.run()
+  optionsomenone.Main.run()
+  companionobjects.Main.run()
+  caseclasses.Main.run()
 }
