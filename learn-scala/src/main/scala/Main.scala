@@ -12,4 +12,6 @@ object Main extends App {
   optionsomenone.Main.run()
   companionobjects.Main.run()
   caseclasses.Main.run()
+  caseobjects.Main.run()
+  trysuccessfailure.Main.run()
 }
