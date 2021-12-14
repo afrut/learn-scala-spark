@@ -1,6 +1,7 @@
 This project uses powershell.
 
 Install Java JDK 1.8 (8) or 11. Note directory path.
+Install Scala Build Tool (sbt).
 Download scala-2.12.15. Note directory path.
 Download spark-3.0.3-bin-hadoop2.7. Note directory path.
 Download hadoop-2.7.7 for winutils. Note directory path.

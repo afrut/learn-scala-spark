@@ -9,3 +9,8 @@ Alternatively, in cmd:
     - sbt ~run to run on any file save
     - sbt test to run tests once
     - sbt ~test to run all tests
+    - sbt "~run foo" to pass foo as a parameter
+    - sbt package to create a jar package containing the application.
+
+To use spark's interactive shell:
+    - spark-shell
