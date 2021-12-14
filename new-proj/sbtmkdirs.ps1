@@ -35,6 +35,9 @@ if($args.Length -gt 0) {
   "object Main extends App {" | Out-File -Encoding ASCII -File $mainFile -Append
   "  println(`"Hello, World!`")" | Out-File -Encoding ASCII -File $mainFile -Append
   "}" | Out-File -Encoding ASCII -File $mainFile -Append
+
+  $ignoreFile = New-Item -path "$projPath" -Name ".gitignore" -ItemType "file" -Force
+  "target" | Out-File -Encoding ASCII -File $ignoreFile -Append
 }
 else {
   Write-Host "No project name passed."
