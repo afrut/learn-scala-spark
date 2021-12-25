@@ -1,4 +1,4 @@
-// A file demonstrating the use of Dataframe (aka. Dataset[Row] in Scala) in Spark
+// A file demonstrating the use of DataFrame (aka. Dataset[Row] in Scala) in Spark
 package datasetdemo
 import org.apache.spark.sql.SparkSession // For entry point.
 import org.apache.spark.sql.functions.col // Creates a new Column with the given column name.
@@ -19,12 +19,12 @@ object Main {
     println()
 
     val spark = SparkSession.builder().appName("Dataset Demo").getOrCreate() // Create SparkSession entry point.
-    import spark.implicits._ // For using $-notation with Dataframe.select()
+    import spark.implicits._ // For using $-notation with DataFrame.select()
     
     // ----------------------------------------
     //   Creation
     // ----------------------------------------
-    val dfRaw = spark.read.json(filepath) // Create a Dataframe from a json file.
+    val dfRaw = spark.read.json(filepath) // Create a DataFrame from a json file.
     val df = dfRaw.as[RowInstance] // Cast types of each column as defined by case class.
     df.cache() // Most spark operations are lazy, usually evaluating when an action is invoked. Cache upon first loading to prevent repeated loading.
 
@@ -54,31 +54,41 @@ object Main {
     // TODO: createTempView
     // TODO: explain
     // TODO: hint
+    // TODO: isLocal
+    // TODO: javaRDD
+    // TODO: localCheckpoint(eager: Boolean)
+    // TODO: localCheckpoint()
+    // TODO: persist
+    // TODO: rdd
+    // TODO: storageLevel
 
     // ----------------------------------------
     //   Conversion
     // ----------------------------------------
-    df.collect() // Return Dataframe as Array[Row]
+    df.collect() // Return DataFrame as Array[Row]
     df.collectAsList() // Return a Java ArrayList
 
     // ----------------------------------------
     //   Inspection
     // ----------------------------------------
     df.columns // Returns Array[String] for columnames of DataFrame.
-    df.describe() // Returns a Dataframe of basic statistics.
+    df.describe() // Returns a DataFrame of basic statistics.
     df.dtypes // Returns Array[String, String] for column names and data types
-    println(s"input files: ${df.inputFiles}")
+    df.inputFiles // Array[String] that lists files that make up this DataFrame.
+    df.isEmpty // Returns if DataFrame has any rows or not.
     df.printSchema() // Show column structure.
+    df.printSchema(3) // Show column structure up to level 3.
+    df.schema // Returns a StructType (which is a collection of StructFields) which repersents, the columns and data types of the DataFrame
     df.show(5) // Show top 5 rows. Default 20 with no argument passed in.
     df.summary() // Same as describe but with percentiles
 
     // ----------------------------------------
     //   Aggregation
     // ----------------------------------------
-    df.count() // Number of rows in the Dataframe.
+    df.count() // Number of rows in the DataFrame.
     df.groupBy("target").count() // Count the number of rows belonging to each distinct value of column "target".
-    df.reduce((a, b) => if(a.sepal_length > b.sepal_length) a else b) // Reduce the Dataframe to get the row with the greatest sepal_length.
-
+    df.reduce((a, b) => if(a.sepal_length > b.sepal_length) a else b) // Reduce the DataFrame to get the row with the greatest sepal_length.
+    
     spark.stop()
     println()
   }
