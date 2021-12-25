@@ -28,6 +28,13 @@ object Main {
   def getRandomInt(stop: Int) = {rand.nextInt(stop)}
   def getRandomInt() = {rand.nextInt(20)}
 
+  // Sum up an arbitrary number of values
+  def sum(a: Double*) = {
+    var ret: Double = 0
+    a.foreach(x => ret += x)
+    ret
+  }
+
   def run(): Unit = {
     println("----------------------------------------------------------------------")
     println("  Functions and Methods")
@@ -55,6 +62,12 @@ object Main {
       (m * x) + b         // last line is the return
     }
     println(s"f(2,1)(a) = ${f(2,1)(a)}")
+
+    // Use a function with a variable number of arguments
+    // Use the splat operator on a collection to "unpack" it
+    val somenums = Seq(4.0, 5.0, 6.0)
+    println(s"sum(1, 2, 3, 4, 7, 11) = ${sum(1, 2, 3, 4, 7, 11)}")
+    println(s"sum(${somenums}) = ${sum(somenums:_*)}")
 
     println()
   }

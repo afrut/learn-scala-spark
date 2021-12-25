@@ -5,7 +5,7 @@ object Main extends App {
   exceptionhandling.Main.run()
   classes.Main.run()
   tuples.Main.run()
-  // userinput.Main.run()
+  userinput.Main.run()
   enumerations.Main.run()
   shapes.Main.run()
   collections.Main.run()
