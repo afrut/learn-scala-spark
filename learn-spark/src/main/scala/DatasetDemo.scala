@@ -19,7 +19,7 @@ object Main {
     println()
 
     val spark = SparkSession.builder().appName("Dataset Demo").getOrCreate() // Create SparkSession entry point.
-    import spark.implicits._ // For using $-notation with DataFrame.select()
+    import spark.implicits._ // For using $-notation with DataFrame.select(), encoders, and DataFrame.*
     
     // ----------------------------------------
     //   Creation
@@ -27,6 +27,12 @@ object Main {
     val dfRaw = spark.read.json(filepath) // Create a DataFrame from a json file.
     val df = dfRaw.as[RowInstance] // Cast types of each column as defined by case class.
     df.cache() // Most spark operations are lazy, usually evaluating when an action is invoked. Cache upon first loading to prevent repeated loading.
+    
+    // Create data from Scala data types.
+    val id = Seq(1, 2, 3, 4)
+    val name = Seq("foo", "bar", "baz", "qaz")
+    val df2 = id.zip(name).toDF()
+    val df3 = id.zip(name).toDF("id", "name")
 
     // ----------------------------------------
     //   Selection
@@ -61,6 +67,7 @@ object Main {
     // TODO: persist
     // TODO: rdd
     // TODO: storageLevel
+    // TODO: unpersist
 
     // ----------------------------------------
     //   Conversion
