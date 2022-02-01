@@ -5,5 +5,7 @@ Install Scala Build Tool (sbt).
 Download scala-2.12.15. Note directory path.
 Download spark-3.0.3-bin-hadoop2.7. Note directory path.
 Download hadoop-2.7.7 for winutils. Note directory path.
+Download jdbc driver for Microsoft SQL Server.
 Modify env.ps1 to use include the directory paths noted above.
+Add jdbc-driver\auth\x64 to PATH variable to enable using windows authentication.
 Run env.ps1 to setup environment variables.
