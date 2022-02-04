@@ -45,9 +45,11 @@ object Main {
     val lsInts1 = List(1, 2, 3)                           // Create and initialize a List
     val lsInts2 = 0 +: lsInts1                            // Create an new List and prepend 0
     val lsInts3 = List(4, 5) ++: lsInts2                  // Create yet another List and prepend a collection
+    val lsInts4 = 6 :: lsInts3                            // Prepend with ::. Note that lsInts3's last element is :: Nil
     println(s"    lsInts1 = ${join(lsInts1)}")
     println(s"    lsInts2 = ${join(lsInts2)}")
     println(s"    lsInts3 = ${join(lsInts3)}")
+    println(s"    lsInts4 = ${join(lsInts4)}")
 
     // Vector is an immutable type but supports fast access index
     // (maybe resizing array implementation?). Other than this, it's
