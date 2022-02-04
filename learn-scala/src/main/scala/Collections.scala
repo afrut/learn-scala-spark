@@ -126,6 +126,7 @@ object Main {
     val seqTakeWhile = seq.takeWhile(_ < 4)                 // All elements of the sequence less than 4
     val seqDrop3 = seq.drop(3)                              // Remove the first 4 elements
     val seqDropWhile = seq.dropWhile(_ < 4)                 // Remove all elements less than 4
+    val seqFoldLeft = seq.tail.foldLeft(seq.head.toString)((x,y) => s"$x,${y.toString}") // Iterate through elements from left to right starting with head and create a csv.
     println(s"    seq = ${seq}")
     println(s"    seq1 = ${seq1}")
     println(s"    seq.foreach = $msg")
@@ -139,6 +140,7 @@ object Main {
     println(s"    seqTakeWhile = ${seqTakeWhile}")
     println(s"    seqDrop3 = ${seqDrop3}")
     println(s"    seqDropWhile = ${seqDropWhile}")
+    println(s"    seqFoldLeft = ${seqFoldLeft}")
 
     // Some common map methods
     val m = Map(
