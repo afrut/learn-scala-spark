@@ -15,3 +15,7 @@ To disable all INFO messages printing to console, in $Env:SPARK_HOME\conf\log4j.
     - log4j.rootCategory=ERROR, console
 To disable ERROR messages coming from ShutdownHookManager, in $Env:SPARK_HOME\conf\log4j.properties, ensure that the following line is present:
     - log4j.logger.org.apache.spark.util.ShutdownHookManager=OFF
+To use in spark-shell:
+    - run spark-shell through console
+    - :load ".\path\to\file.scala"
+    - call the method within the object Main.main()
