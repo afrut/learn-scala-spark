@@ -1,4 +1,4 @@
-// A file demonstrating the use of DataFrame (aka. Dataset[Row] in Scala) in Spark
+// A file demonstrating different ways to create DataFrmaes (aka. Dataset[Row] in Scala) in Spark
 package datasetdemo
 import org.apache.spark.sql.SparkSession // For entry point.
 import org.apache.spark.sql.functions.col // Creates a new Column with the given column name.
@@ -14,25 +14,14 @@ object Main {
     println("----------------------------------------------------------------------")
     println("  DatasetDemo")
     println("----------------------------------------------------------------------")
-    val filepath = ".\\src\\main\\resources\\iris.json"
-    println(s"Using $filepath as data source.")
-    println()
+    val filepathJson = ".\\src\\main\\resources\\iris.json"
 
     val spark = SparkSession.builder().appName("Dataset Demo").getOrCreate() // Create SparkSession entry point.
     import spark.implicits._ // For using $-notation with DataFrame.select(), encoders, and DataFrame.*
-    
-    // ----------------------------------------
-    //   Creation
-    // ----------------------------------------
-    val dfRaw = spark.read.json(filepath) // Create a DataFrame from a json file.
+
+    val dfRaw = spark.read.json(filepathJson) // Create a DataFrame from a json file.
     val df = dfRaw.as[RowInstance] // Cast types of each column as defined by case class.
     df.cache() // Most spark operations are lazy, usually evaluating when an action is invoked. Cache upon first loading to prevent repeated loading.
-    
-    // Create data from Scala data types.
-    val id = Seq(1, 2, 3, 4)
-    val name = Seq("foo", "bar", "baz", "qaz")
-    val df2 = id.zip(name).toDF()
-    val df3 = id.zip(name).toDF("id", "name")
 
     // ----------------------------------------
     //   Selection
@@ -57,7 +46,7 @@ object Main {
     // TODO: createGlobalTempView
     // TODO: createOrReplaceGlobalTempView
     // TODO: createOrReplaceTempView
-    // TODO: createTempView
+    // TODO: createTempViewf
     // TODO: explain
     // TODO: hint
     // TODO: isLocal
