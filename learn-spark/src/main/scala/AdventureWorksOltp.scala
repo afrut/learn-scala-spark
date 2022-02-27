@@ -3,6 +3,10 @@ package AdventureWorksOltp
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.functions.dense_rank
+import org.apache.spark.sql.functions.concat
+import org.apache.spark.sql.functions.lit
+import org.apache.spark.sql.functions.when
+import org.apache.spark.sql.functions.sum
 import org.apache.spark.sql.expressions.Window
 
 object Main {
@@ -31,6 +35,50 @@ object Main {
     println("  DatasetDemo")
     println("----------------------------------------------------------------------")
     prodMargins.show()
+  }
+
+  // Find the top 3 products sold by each SalesPerson
+  def productBySalesPerson() = {
+    val spark = SparkSession.builder().appName("Dataset Demo").getOrCreate()
+    import spark.implicits._
+    val sod = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderDetail.parquet")
+    val soh = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderHeader.parquet")
+    val product = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Production.Product.parquet")
+    val sp = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesPerson.parquet")
+    val person = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Person.Person.parquet")
+
+    // All sales
+    val sales = sod
+      .join(soh, sod("SalesOrderID") === soh("SalesOrderID"), "inner")
+      .join(product, sod("ProductID") === product("ProductID"), "inner")
+      .join(sp, soh("SalesPersonID") === sp("BusinessEntityID"), "left")
+      .join(person, soh("SalesPersonID") === person("BusinessEntityID"), "left")
+      .withColumn("SalesPersonName",
+        when($"SalesPersonID".isNull, "ONLINE")
+        .otherwise(concat(person("LastName"), lit(", "), person("FirstName"))))
+      .select($"SalesPersonName"
+        ,product("ProductID")
+        ,product("Name").as("ProductName")
+        ,sod("OrderQty"))
+
+    // All sales grouped by SalesPersonName and ProductID and summing Orderqty
+    val salesGrouped = sales.groupBy("SalesPersonName","ProductID", "ProductName")
+      .agg(sum("OrderQty").as("OrderQty"))
+      .select("SalesPersonName","ProductName","OrderQty")
+
+    // For every combination of SalesPersonName and ProductName,
+    // order by OrderQty and compute rank.
+    val wdw = Window.partitionBy("SalesPersonName")
+      .orderBy($"OrderQty".desc)
+    val topProducts = salesGrouped.withColumn("Rank", dense_rank().over(wdw))
+      .filter($"Rank" <= 3)
+      .orderBy("SalesPersonName","Rank")
+    topProducts.show(50)
   }
 
   def run() = {

@@ -5,6 +5,7 @@ object Main {
     // DatasetCreation.Main.run()
     // datasetdemo.Main.run()
     // jdbc.Main.run()
-    AdventureWorksOltp.Main.productByMargin()
+    // AdventureWorksOltp.Main.productByMargin()
+    AdventureWorksOltp.Main.productBySalesPerson()
   }
 }
