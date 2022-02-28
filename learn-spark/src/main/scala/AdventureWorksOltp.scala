@@ -7,6 +7,7 @@ import org.apache.spark.sql.functions.concat
 import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.functions.when
 import org.apache.spark.sql.functions.sum
+import org.apache.spark.sql.functions.avg
 import org.apache.spark.sql.expressions.Window
 
 object Main {
@@ -263,8 +264,26 @@ object Main {
     spark.stop()
   }
 
-  // Rank products by revenue
-  // Rank products by total profit
+  // Rank products by reviews
+  def productRating() = {
+    val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
+    import spark.implicits._
+    val pr = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Production.ProductReview.parquet")
+    val product = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Production.Product.parquet")
+    val productRating = pr
+      .join(product, pr("ProductID") === product("ProductID"), "inner")
+      .groupBy($"Name").agg(avg($"Rating").as("RatingAvg"))
+      .withColumn("Rank", dense_rank().over(Window.orderBy($"RatingAvg".desc)))
+      .withColumnRenamed("Name", "ProductName")
+      .select($"ProductName", $"RatingAvg".as("Rating"), $"Rank")
+    println("----------------------------------------------------------------------")
+    println(s"  Products Ranked by Average Review Rating")
+    println("----------------------------------------------------------------------")
+    productRating.show()
+    spark.stop()
+  }
 
   def run() = {
     val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
