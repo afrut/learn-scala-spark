@@ -8,6 +8,7 @@ object Main {
     // AdventureWorksOltp.Main.productByMargin()
     // AdventureWorksOltp.Main.productBySalesPersonByQuantity()
     // AdventureWorksOltp.Main.productBySalesPersonByRevenue()
-    AdventureWorksOltp.Main.productBySalesPersonByProfit()
+    // AdventureWorksOltp.Main.productBySalesPersonByProfit()
+    AdventureWorksOltp.Main.productByQuantityPerTerritory()
   }
 }

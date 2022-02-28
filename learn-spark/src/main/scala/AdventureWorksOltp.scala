@@ -12,7 +12,7 @@ import org.apache.spark.sql.expressions.Window
 object Main {
   // Rank products by their profit margin
   def productByMargin() = {
-    val spark = SparkSession.builder().appName("Dataset Demo").getOrCreate()
+    val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
     import spark.implicits._
     val product = spark.read.format("parquet")
       .load(".\\parquet\\AdventureWorks-oltp\\Production.Product.parquet")
@@ -32,14 +32,15 @@ object Main {
       .select(colNames.map(col):_*)
 
     println("----------------------------------------------------------------------")
-    println("  DatasetDemo")
+    println("  Product Margins")
     println("----------------------------------------------------------------------")
     prodMargins.show()
+    spark.stop()
   }
 
   // Find the top 3 products sold by each SalesPerson by quantity sold
   def productBySalesPersonByQuantity() = {
-    val spark = SparkSession.builder().appName("Dataset Demo").getOrCreate()
+    val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
     import spark.implicits._
     val sod = spark.read.format("parquet")
       .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderDetail.parquet")
@@ -78,12 +79,17 @@ object Main {
     val topProducts = salesGrouped.withColumn("Rank", dense_rank().over(wdw))
       .filter($"Rank" <= 3)
       .orderBy("SalesPersonName","Rank")
+
+    println("----------------------------------------------------------------------")
+    println("  Top 3 Products per Sales Person by Quantity")
+    println("----------------------------------------------------------------------")
     topProducts.show(50)
+    spark.stop()
   }
 
   // Find the top 3 products sold by each SalesPerson by revenue
   def productBySalesPersonByRevenue() = {
-    val spark = SparkSession.builder().appName("Dataset Demo").getOrCreate()
+    val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
     import spark.implicits._
     val sod = spark.read.format("parquet")
       .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderDetail.parquet")
@@ -122,12 +128,16 @@ object Main {
     val topProducts = salesGrouped.withColumn("Rank", dense_rank().over(wdw))
       .filter($"Rank" <= 3)
       .orderBy("SalesPersonName","Rank")
+    println("----------------------------------------------------------------------")
+    println("  Top 3 Products per Sales Person by Revenue")
+    println("----------------------------------------------------------------------")
     topProducts.show(50)
+    spark.stop()
   }
 
   // Find the top 3 products sold by each SalesPerson by profit
   def productBySalesPersonByProfit() = {
-    val spark = SparkSession.builder().appName("Dataset Demo").getOrCreate()
+    val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
     import spark.implicits._
     val sod = spark.read.format("parquet")
       .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderDetail.parquet")
@@ -168,11 +178,50 @@ object Main {
     val topProducts = salesGrouped.withColumn("Rank", dense_rank().over(wdw))
       .filter($"Rank" <= 3)
       .orderBy("SalesPersonName","Rank")
+    println("----------------------------------------------------------------------")
+    println("  Top 3 Products per Sales Person by Profit")
+    println("----------------------------------------------------------------------")
     topProducts.show(50)
+    spark.stop()
+  }
+
+  // Rank products by quantity sold per territory
+  def productByQuantityPerTerritory() = {
+    val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
+    import spark.implicits._
+    val sod = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderDetail.parquet")
+    val soh = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderHeader.parquet")
+    val st = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesTerritory.parquet")
+    val product = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Production.Product.parquet")
+
+    val productsByTerritory = sod
+      .join(soh, sod("SalesOrderID") === soh("SalesOrderID"), "inner")
+      .join(st, soh("TerritoryID") === st("TerritoryID"))
+      .join(product, sod("ProductID") === product("ProductID"))
+      .groupBy(st("Name"),product("Name"))
+      .agg(sum(sod("OrderQty")).as("OrderQtyTotal")
+        ,sum(sod("LineTotal")).as("LineTotal2"))
+      .select(
+        st("Name").as("TerritoryName")
+        ,product("Name").as("ProductName")
+        ,$"OrderQtyTotal"
+        ,$"LineTotal2"
+      )
+      .withColumnRenamed("LineTotal2", "LineTotal")
+      .withColumn("Rank", dense_rank()
+        .over(Window.partitionBy("TerritoryName").orderBy($"LineTotal".desc))
+      )
+
+    productsByTerritory.show()
+    spark.stop()
   }
 
   def run() = {
-    val spark = SparkSession.builder().appName("Dataset Demo").getOrCreate()
+    val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
     val sod = spark.read.format("parquet").load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderDetail.parquet")
     val soh = spark.read.format("parquet").load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderHeader.parquet")
     val product = spark.read.format("parquet").load(".\\parquet\\AdventureWorks-oltp\\Production.Product.parquet")
