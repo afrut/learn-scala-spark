@@ -216,9 +216,55 @@ object Main {
         .over(Window.partitionBy("TerritoryName").orderBy($"LineTotal".desc))
       )
 
+    println("----------------------------------------------------------------------")
+    println("  Products by Quantity per Territory")
+    println("----------------------------------------------------------------------")
     productsByTerritory.show()
     spark.stop()
   }
+
+  // Rank products by quantity sold
+  def productRank(rankBy: String) = {
+    val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
+    import spark.implicits._
+    val sod = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderDetail.parquet")
+    val product = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Production.Product.parquet")
+    val rankByCol = rankBy match {
+      case "Quantity" => Some(col("OrderQtyTotal"))
+      case "Revenue" => Some(col("LineTotal"))
+      case "Profit" => Some(col("Profit"))
+      case _ => None
+    }
+    val productsByQuantity = rankByCol match {
+      case Some(rankByCol) => sod
+        .join(product, sod("ProductID") === product("ProductID"), "inner")
+        .withColumn("Margin", product("ListPrice") - product("StandardCost"))
+        .groupBy(product("ProductID"), product("Name").as("ProductName"))
+        .agg(
+          sum(sod("OrderQty")).as("OrderQtyTotal")
+          ,sum(sod("LineTotal")).as("LineTotal2")
+          ,sum(sod("OrderQty") * $"Margin").as("Profit")
+        )
+        .select("ProductName", "OrderQtyTotal", "LineTotal2", "Profit")
+        .withColumnRenamed("LineTotal2", "LineTotal")
+        .withColumn("Rank", 
+        dense_rank()
+          .over(Window.orderBy(rankByCol.desc))
+        )
+      case None => spark.emptyDataFrame
+    }
+
+    println("----------------------------------------------------------------------")
+    println(s"  Products by ${rankBy}")
+    println("----------------------------------------------------------------------")
+    productsByQuantity.show()
+    spark.stop()
+  }
+
+  // Rank products by revenue
+  // Rank products by total profit
 
   def run() = {
     val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
