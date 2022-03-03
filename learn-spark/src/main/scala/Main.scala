@@ -13,6 +13,8 @@ object Main {
     // AdventureWorksOltp.Main.productRank("Quantity")
     // AdventureWorksOltp.Main.productRank("Revenue")
     // AdventureWorksOltp.Main.productRank("Profit")
-    AdventureWorksOltp.Main.productRating()
+    // AdventureWorksOltp.Main.productRating()
+    AdventureWorksOltp.Main.salesPersonBy("Revenue")
+    AdventureWorksOltp.Main.salesPersonBy("Profit")
   }
 }

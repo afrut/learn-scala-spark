@@ -285,12 +285,48 @@ object Main {
     spark.stop()
   }
 
-  def run() = {
+  // Rank sales person by revenue or profit
+  def salesPersonBy(rankBy: String) = {
     val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
-    val sod = spark.read.format("parquet").load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderDetail.parquet")
-    val soh = spark.read.format("parquet").load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderHeader.parquet")
-    val product = spark.read.format("parquet").load(".\\parquet\\AdventureWorks-oltp\\Production.Product.parquet")
-    val sp = spark.read.format("parquet").load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesPerson.parquet")
-    val person = spark.read.format("parquet").load(".\\parquet\\AdventureWorks-oltp\\Person.Person.parquet")
+    import spark.implicits._
+    val soh = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderHeader.parquet")
+    val sod = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderDetail.parquet")
+    val product = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Production.Product.parquet")
+    val person = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Person.Person.parquet")
+
+    val rankByCol = rankBy match {
+      case "Revenue" => Some(col("Revenue"))
+      case "Profit" => Some(col("Profit"))
+      case _ => None
+    }
+
+    val salesPerson = rankByCol match {
+      case Some(rankCol) =>
+        soh
+          .join(sod, soh("SalesOrderID") === sod("SalesOrderID"), "inner")
+          .join(product, sod("ProductID") === product("ProductID"))
+          .withColumn("Margin", product("ListPrice") - product("StandardCost"))
+          .groupBy(soh("SalesPersonID"))
+          .agg(
+            sum(sod("LineTotal")).as("Revenue")
+            ,sum($"Margin" * sod("OrderQty")).as("Profit")
+          )
+          .withColumn("Rank", dense_rank().over(Window.orderBy(rankCol.desc)))
+          .join(person, soh("SalesPersonID") === person("BusinessEntityID"), "left")
+          .withColumn("SalesPersonName"
+            ,when(soh("SalesPersonID").isNull, "ONLINE")
+            .otherwise(concat($"LastName", lit(", "), $"FirstName")))
+          .select($"SalesPersonName", rankCol, $"Rank")
+      case None => spark.emptyDataFrame
+    }
+    println("----------------------------------------------------------------------")
+    println(s"  Sales Person Ranked by $rankBy")
+    println("----------------------------------------------------------------------")
+    salesPerson.show()
+    spark.stop()
   }
 }
