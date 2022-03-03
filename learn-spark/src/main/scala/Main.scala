@@ -14,7 +14,9 @@ object Main {
     // AdventureWorksOltp.Main.productRank("Revenue")
     // AdventureWorksOltp.Main.productRank("Profit")
     // AdventureWorksOltp.Main.productRating()
-    AdventureWorksOltp.Main.salesPersonBy("Revenue")
-    AdventureWorksOltp.Main.salesPersonBy("Profit")
+    // AdventureWorksOltp.Main.salesPersonBy("Revenue")
+    // AdventureWorksOltp.Main.salesPersonBy("Profit")
+    AdventureWorksOltp.Main.territoryBy("Revenue")
+    AdventureWorksOltp.Main.territoryBy("Profit")
   }
 }

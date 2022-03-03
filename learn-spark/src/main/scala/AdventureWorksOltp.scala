@@ -329,4 +329,46 @@ object Main {
     salesPerson.show()
     spark.stop()
   }
+
+  // Rank territories by revenue or profit
+  def territoryBy(rankBy: String) = {
+    val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
+    import spark.implicits._
+    val soh = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderHeader.parquet")
+    val sod = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesOrderDetail.parquet")
+    val st = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Sales.SalesTerritory.parquet")
+    val product = spark.read.format("parquet")
+      .load(".\\parquet\\AdventureWorks-oltp\\Production.Product.parquet")
+    val rankByCol = rankBy match {
+      case "Revenue" => Some(col("Revenue"))
+      case "Profit" => Some(col("Profit"))
+      case _ => None
+    }
+    val df = rankByCol match {
+      case Some(rankCol) => {
+        soh.join(sod, soh("SalesOrderID") === sod("SalesOrderID"))
+          .join(product, sod("ProductID") === product("ProductID"))
+          .withColumn("Margin", product("ListPrice") - product("StandardCost"))
+          .withColumn("Profit", sod("OrderQty") * $"Margin")
+          .groupBy(soh("TerritoryID"))
+          .agg(
+            sum(sod("LineTotal")).as("Revenue")
+            ,sum($"Profit").as("Profit")
+          )
+          .join(st, soh("TerritoryID") === st("TerritoryID"))
+          .withColumnRenamed("Name", "TerritoryName")
+          .withColumn("Rank", dense_rank().over(Window.orderBy(rankCol.desc)))
+          .select($"TerritoryName", rankCol, $"Rank")
+      }
+      case None => spark.emptyDataFrame
+    }
+    println("----------------------------------------------------------------------")
+    println(s"  Territories Ranked by $rankBy")
+    println("----------------------------------------------------------------------")
+    df.show()
+    spark.stop()
+  }
 }
