@@ -8,6 +8,8 @@ import org.apache.spark.sql.functions.lit
 import org.apache.spark.sql.functions.when
 import org.apache.spark.sql.functions.sum
 import org.apache.spark.sql.functions.avg
+import org.apache.spark.sql.functions.lpad
+import org.apache.spark.sql.types.DoubleType
 import org.apache.spark.sql.expressions.Window
 
 object Main {
@@ -309,13 +311,13 @@ object Main {
         soh
           .join(sod, soh("SalesOrderID") === sod("SalesOrderID"), "inner")
           .join(product, sod("ProductID") === product("ProductID"))
-          .withColumn("Margin", product("ListPrice") - product("StandardCost"))
+          .withColumn("Margin", product("ListPrice") - product("StandardCost").cast(DoubleType))
           .groupBy(soh("SalesPersonID"))
           .agg(
             sum(sod("LineTotal")).as("Revenue")
             ,sum($"Margin" * sod("OrderQty")).as("Profit")
           )
-          .withColumn("Rank", dense_rank().over(Window.orderBy(rankCol.desc)))
+          .withColumn("Rank", lpad(dense_rank().over(Window.orderBy(rankCol.desc)), 3, "0"))
           .join(person, soh("SalesPersonID") === person("BusinessEntityID"), "left")
           .withColumn("SalesPersonName"
             ,when(soh("SalesPersonID").isNull, "ONLINE")
@@ -331,7 +333,7 @@ object Main {
   }
 
   // Rank territories by revenue or profit
-  def territoryBy(rankBy: String) = {
+  def territoryBy(rankBy: String, domestic: Boolean = false) = {
     val spark = SparkSession.builder().appName("AdventureWorksOltp").getOrCreate()
     import spark.implicits._
     val soh = spark.read.format("parquet")
@@ -349,7 +351,7 @@ object Main {
     }
     val df = rankByCol match {
       case Some(rankCol) => {
-        soh.join(sod, soh("SalesOrderID") === sod("SalesOrderID"))
+        val ret = soh.join(sod, soh("SalesOrderID") === sod("SalesOrderID"))
           .join(product, sod("ProductID") === product("ProductID"))
           .withColumn("Margin", product("ListPrice") - product("StandardCost"))
           .withColumn("Profit", sod("OrderQty") * $"Margin")
@@ -362,6 +364,11 @@ object Main {
           .withColumnRenamed("Name", "TerritoryName")
           .withColumn("Rank", dense_rank().over(Window.orderBy(rankCol.desc)))
           .select($"TerritoryName", rankCol, $"Rank")
+        domestic match {
+          case true => ret.filter($"TerritoryName".isin(
+            Seq("Southwest","Northwest","Central","Southeast","Northeast"):_*))
+          case false => ret
+        }
       }
       case None => spark.emptyDataFrame
     }

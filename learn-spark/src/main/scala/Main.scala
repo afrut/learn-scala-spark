@@ -18,5 +18,7 @@ object Main {
     // AdventureWorksOltp.Main.salesPersonBy("Profit")
     AdventureWorksOltp.Main.territoryBy("Revenue")
     AdventureWorksOltp.Main.territoryBy("Profit")
+    AdventureWorksOltp.Main.territoryBy("Revenue", true)
+    AdventureWorksOltp.Main.territoryBy("Profit", true)
   }
 }
