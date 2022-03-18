@@ -25,6 +25,10 @@ object Main {
     println("Created new instance of Person person2 using named parameters:")
     println(s"    person2: ${person2.toString}")
     println(s"    person2 Full Name: ${person2.fullName()}")
+    println(s"    class of person2: ${person2.getClass}")
+
+    // Get the object representing a type.
+    println(s"Class of person: ${classOf[Person]}")
 
     println()
   }
