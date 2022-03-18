@@ -31,12 +31,14 @@ object Main {
     df.select(col("target")) // Select columns with col() function.
     df.select($"target", ($"petal_length" + 0.73)) // Select columns with $-notation and expressions.
     df.select(col("target").alias("target")) // Select column and alias.
+    df.select("target").distinct().show() // Get the distinct values of the column "target".
     df.filter($"petal_length" < 1.3) // Select columns that match a criteria.
     df.first() // First row.
     df.foreach(x => {}) // Apply a function to every row.
     df.foreachPartition((x: Iterator[RowInstance]) => x.foreach(y => {})) // Apply a function for every atomic chunk of data sotred on a node in a cluster. Used for costly operations that involve eg. creating database connections.
     df.head() // First row.
     df.head(5) // First 5 rows.
+    df.limit(5) // Create DataFrame of first 5 rows.
     df.tail(5) // Last 5 rows.
     df.take(5) // First 5 rows.
     df.takeAsList(5) // First 5 rows as List
