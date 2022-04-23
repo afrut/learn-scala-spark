@@ -17,5 +17,7 @@ To disable ERROR messages coming from ShutdownHookManager, in $Env:SPARK_HOME\co
     - log4j.logger.org.apache.spark.util.ShutdownHookManager=OFF
 To use in spark-shell:
     - run spark-shell through console
+    - to add a library, spark-shell --jars "D:\Spark\sqljdbc_10.2\enu\mssql-jdbc-10.2.0.jre8.jar"
     - :load ".\path\to\file.scala"
     - call the method within the object Main.main()
+    - Spark UI for spark shell is at localhost:4040
