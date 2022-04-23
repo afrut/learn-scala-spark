@@ -1,0 +1,65 @@
+Driver Program/Application
+    - A JVM process where the main method runs
+    - This JVM process runs on the master node/cluster manager
+    - Usually, this is created by a client/developer
+    - It contains one instance of SparkContext/SparkSession, the entry point for Spark
+    - Converts the user program into tasks and then schedules them on the executors
+    - An Application can run multiple jobs
+        - Jobs can be run one after another (by encountering one action after another)
+        - Jobs can be run by multiple threads
+
+Node
+    - A machine on the cluster
+
+Worker/Slave
+    - A process that coordinates multiple executors from different applications, if resources allow
+    - For spark standalone cluster manager, default of one executor per worker unless the node contains enough nodes to host more execotors. Option: spark.executor.cores/--executor-cores
+    - Why is there not a good reason to run more than one worker per machine?
+        - It can be when you have in the order of 256GB or RAM. At this point though, the JVM may not always behave properly, probably due to garbage collection in the JVM.
+
+Executor
+    - JVM processes that run on nodes in the cluster
+    - Once started by the Cluster Manager, they register and communicate directly with the Driver Program
+    - Launched at the beginning and communicate results to driver when the application completes
+    - Provides in-memory storage for RDDs cached by the Driver Program
+    - They can be running even when no job is running to enable quick access to memory and quick start-up
+    - Can have multiple cores assigned to it
+    - Can run many tasks concurrently
+    - Spark Standalone requires each application to run one executor in every node
+    - The option --total-executor-cores limits the number of cores per application
+
+Cluster Manager
+    - Communicates with the Driver Program and handles requests for resources
+    - Launches the executors on the cluster after handling resource requests from the Driver Program
+    - Has 2 components: the master and slave service
+        - The master service is central and coordinates which applications are allocated executor processes and where these run
+        - The slave service runs on every node, starts the executors and monitors them
+
+Task
+    - A unit of execution for an Executor, usually associated with a partition of data
+
+Job
+    - A unit of computation that is created when an Action is encountered
+    - It can contain multiple stages, with each stage containing multiple tasks
+
+Narrow/Wide Dependencies
+
+
+Stage
+    - A Job is split into multiple stages upon encountering a wide dependency
+
+Partition
+Cores
+Action/Transformation
+Resources
+    - Inclue memory(RAM), storage(disk) and CPU (cores)
+
+API
+    - The Dataset API gets converted to a logical plan and a physical plan (DAG of RDDs) when an action is invoked
+    - DataSet enables compact binary representation using compressed columnar formats that are stored outside JVM's heap
+        - This speeds up computations by minimizing memory usage and garbage collection by the JVM
+
+Logical Plan/Physical Plan
+    - Logical plan contains details on all transformations that are to be executed.
+        - It is a Catalyst tree that represents chema and data.
+        - The logical plan is parsed, analyzed and then optimized by Catalyst.
