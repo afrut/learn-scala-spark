@@ -3,7 +3,7 @@ object Main {
     val readmepath = args(0)
     // helloworld.Main.run(readmepath)
     // DatasetCreation.Main.run()
-    // datasetdemo.Main.run()
+    datasetdemo.Main.run()
     // jdbc.Main.run()
     // AdventureWorksOltp.Main.productByMargin()
     // AdventureWorksOltp.Main.productBySalesPersonByQuantity()
@@ -16,9 +16,9 @@ object Main {
     // AdventureWorksOltp.Main.productRating()
     // AdventureWorksOltp.Main.salesPersonBy("Revenue")
     // AdventureWorksOltp.Main.salesPersonBy("Profit")
-    AdventureWorksOltp.Main.territoryBy("Revenue")
-    AdventureWorksOltp.Main.territoryBy("Profit")
-    AdventureWorksOltp.Main.territoryBy("Revenue", true)
-    AdventureWorksOltp.Main.territoryBy("Profit", true)
+    // AdventureWorksOltp.Main.territoryBy("Revenue")
+    // AdventureWorksOltp.Main.territoryBy("Profit")
+    // AdventureWorksOltp.Main.territoryBy("Revenue", true)
+    // AdventureWorksOltp.Main.territoryBy("Profit", true)
   }
 }

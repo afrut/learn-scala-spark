@@ -48,7 +48,7 @@ object Main {
     // TODO: createGlobalTempView
     // TODO: createOrReplaceGlobalTempView
     // TODO: createOrReplaceTempView
-    // TODO: createTempViewf
+    // TODO: createTempView
     // TODO: explain
     // TODO: hint
     // TODO: isLocal
@@ -86,6 +86,17 @@ object Main {
     df.count() // Number of rows in the DataFrame.
     df.groupBy("target").count() // Count the number of rows belonging to each distinct value of column "target".
     df.reduce((a, b) => if(a.sepal_length > b.sepal_length) a else b) // Reduce the DataFrame to get the row with the greatest sepal_length.
+
+    // ----------------------------------------
+    //   Physical/Logical Plan
+    // ----------------------------------------
+    df.rdd.toDebugString // Description of the RDD and its recursive dependencies
+    df.explain(true) // show parsed, analyzed, optimized and physical plans
+    df.explain(mode = "simple") // show physical plan
+    df.explain(mode = "extended") // show parsed, analyzed, optimized and physical plans
+    df.explain(mode = "codegen") // shows java code to be executed
+    df.explain(mode = "cost") // show optimized logical plan and physical plan
+    df.explain(mode = "formatted") // show physical plan and details at every step
     
     spark.stop()
     println()
