@@ -44,12 +44,10 @@ object Main {
     df.takeAsList(5) // First 5 rows as List
     df.toLocalIterator() // Return an Iterator[]
     // TODO: checkpoint
-    // TODO: demonstration of cache
     // TODO: createGlobalTempView
     // TODO: createOrReplaceGlobalTempView
     // TODO: createOrReplaceTempView
     // TODO: createTempView
-    // TODO: explain
     // TODO: hint
     // TODO: isLocal
     // TODO: javaRDD

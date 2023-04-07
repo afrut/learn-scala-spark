@@ -2,3 +2,4 @@ target
 parquet
 csv
 xlsx
+spark-shell/Scratch.scala
